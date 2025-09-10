@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Rediscover Build Generator</title>
+<style id="theme-style">
+/* ✨ Fancy Theme (default) */
+:root{--bg:#120d0b;--ink:#f4e9d8;--muted:#cdbfa6;--card1:#2d2218;--card2:#1c140f;--line:#a68d6a;--shadow:0 0 12px rgba(255,240,200,0.10);--good:#7bd389;--warn:#ffcf5a;--bad:#ff7a7a;--pill:#3c2f22;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,Inter,Segoe UI,Roboto,Arial,sans-serif}
+h1{margin:12px 0;text-align:center;font-weight:700;letter-spacing:.2px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px}
+.theme{font-size:13px;user-select:none}
+.switch{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.switch input{appearance:none;width:46px;height:24px;border-radius:999px;background:#2a2219;position:relative;outline:0;border:1px solid var(--line)}
+.switch input:checked{background:#3e2f21}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#d6c7a6;transition:transform .2s}
+.switch input:checked::after{transform:translateX(22px)}
+.wrap{max-width:1200px;margin:0 auto;padding:8px}
+.panel{background:linear-gradient(145deg,var(--card1),var(--card2));border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px;margin:12px}
+.group{display:flex;flex-wrap:wrap;gap:8px}
+.pill-btn{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:var(--pill);cursor:pointer;font-size:13px;color:var(--ink);opacity:.85}
+.pill-btn input{display:none}
+.pill-btn.active{box-shadow:0 0 0 2px #d6c7a655 inset;opacity:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font-size:13px;color:var(--muted);margin-right:8px}
+select{padding:6px;border:1px solid var(--line);border-radius:10px;background:#21170f;color:var(--ink)}
+.btn{border:1px solid var(--line);background:#3c2f22;color:var(--ink);padding:10px 14px;border-radius:999px;cursor:pointer;margin:4px 6px;font-weight:600}
+.btn:hover{box-shadow:0 0 0 2px #d6c7a655 inset}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-block;border:1px solid #6b5b45;border-radius:10px;padding:3px 8px;color:#e9dcc4;font-size:12px;white-space:nowrap}
+.badge-blue{border-color:#5a7699}
+.badge-red{border-color:#a35b5b}
+.badge-green{border-color:#5a9b71}
+.badge-gray{border-color:#8a806e}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 8px;margin-left:6px}
+.ok{color:var(--good)} .meh{color:var(--warn)} .no{color:var(--bad)}
+.muted{color:var(--muted)}
+hr.sep{border:0;border-top:1px solid #3a2f24;margin:10px 0}
+canvas{max-width:100%;display:block;margin:10px auto;border-radius:12px;border:1px solid #402f22}
+.footer{color:var(--muted);text-align:center;margin:16px 0}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>Rediscover Build Generator</h1>
+  <div class="theme"><span>🌑</span>
+    <label class="switch"><input id="themeSwitch" type="checkbox" checked></label>
+    <span>✨</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="panel">
+    <strong>Class</strong>
+    <div id="classGroup" class="group">
+      <label class="pill-btn"><input type="radio" name="cls" value="Paladin">Paladin</label>
+      <label class="pill-btn"><input type="radio" name="cls" value="Sorcerer" checked>Sorcerer</label>
+      <label class="pill-btn"><input type="radio" name="cls" value="Ranger">Ranger</label>
+      <label class="pill-btn"><input type="radio" name="cls" value="Berserker">Berserker</label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <strong>Build Focus</strong>
+    <div id="focusGroup" class="group">
+      <label class="pill-btn"><input type="radio" name="focus" value="Tank">Tank</label>
+      <label class="pill-btn"><input type="radio" name="focus" value="Demon">Demon</label>
+      <label class="pill-btn"><input type="radio" name="focus" value="Animal">Animal</label>
+      <label class="pill-btn"><input type="radio" name="focus" value="Primate">Primate</label>
+      <label class="pill-btn"><input type="radio" name="focus" value="Undead">Undead</label>
+      <label class="pill-btn"><input type="radio" name="focus" value="Boss">Boss</label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <strong>Gear Type</strong>
+    <div id="gearGroup" class="group">
+      <label class="pill-btn"><input type="radio" name="gear" value="Primal" checked>Primal</label>
+      <label class="pill-btn"><input type="radio" name="gear" value="Original">Original</label>
+      <label class="pill-btn"><input type="radio" name="gear" value="Chaos">Chaos</label>
+      <label class="pill-btn"><input type="radio" name="gear" value="Abyss">Abyss</label>
+    </div>
+  </div>
+
+  <div class="panel grid2">
+    <div>
+      <strong>Weapon Family</strong><br>
+      <label>Category</label>
+      <select id="weaponCat">
+        <option value="normal">Normal</option>
+        <option value="glacial">Glacial</option>
+        <option value="blaze">Blaze</option>
+        <option value="darkness">Darkness</option>
+        <option value="venom">Venom</option>
+      </select>
+    </div>
+    <div>
+      <strong>&nbsp;</strong><br>
+      <label>Type</label>
+      <select id="weaponType"></select>
+    </div>
+  </div>
+
+  <div class="panel">
+    <button class="btn" id="run">⚡ Optimize</button>
+    <button class="btn" id="render">🖼 Render Card</button>
+    <button class="btn" id="save">💾 Download PNG</button>
+    <span id="status" class="pill">ready</span>
+  </div>
+
+  <div class="panel">
+    <strong>Chosen Stats per Slot</strong>
+    <div id="result" class="slots">—</div>
+  </div>
+
+  <div class="panel">
+    <strong>Requirements Summary</strong>
+    <div id="summary">—</div>
+  </div>
+
+  <div class="panel">
+    <strong>Printable Card</strong>
+    <canvas id="card" width="1200" height="800"></canvas>
+  </div>
+
+  <div class="footer">Guild — Rediscover Alliance • Rediscover Build Generator by SAGE</div>
+</div>
+
+<style id="classic-style" disabled>
+/* 🌑 Classic Theme */
+:root{--bg:#1b130d;--ink:#e8d9bb;--muted:#b7a88c;--card1:#2a2119;--card2:#2a2119;--line:#504230;--pill:#23190f;--shadow:none;--good:#7bd389;--warn:#ffcf5a;--bad:#ff7a7a}
+</style>
+
+<script>
+// THEME TOGGLE
+const themeSwitch=document.getElementById('themeSwitch');
+const themeStyle=document.getElementById('theme-style');
+const classicStyle=document.getElementById('classic-style');
+function setActivePills(container){
+  container.querySelectorAll('.pill-btn').forEach(l=>{
+    const input=l.querySelector('input');
+    l.classList.toggle('active', input.checked);
+    l.onclick=()=>{ input.checked=true; setActivePills(container); };
+  });
+}
+setActivePills(document.getElementById('classGroup'));
+setActivePills(document.getElementById('focusGroup'));
+setActivePills(document.getElementById('gearGroup'));
+themeSwitch.addEventListener('change',()=>{
+  if(themeSwitch.checked){ // Fancy
+    classicStyle.disabled=true;
+    themeStyle.disabled=false;
+  }else{ // Classic
+    themeStyle.disabled=true;
+    classicStyle.disabled=false;
+  }
+});
+
+// ===== Data =====
+const SLOTS=["Weapon","Necklace","Helm","Chest","Ring","Belt","Gloves","Boots"];
+const LABEL={atkspd:"ATK SPD", eva:"Evasion", crit:"Crit", dr:"Damage Reduce",
+             hp:"HP", def:"DEF", atkpct:"ATK%", critdmg:"Crit DMG", demondmg:"Demon DMG",
+             mats:"Chance High-Class Mats", bossdmg:"Boss Damage"};
+const PER_LINE={
+  Primal:{ atkspd:0.12, eva:12, crit:12, dr:14, hp:23, def:23, atkpct:23, critdmg:35, demondmg:0 },
+  Original:{ atkspd:0.12, eva:12, crit:12, dr:17, hp:23, def:23, atkpct:23, critdmg:35, demondmg:0 },
+  Chaos:{ atkspd:0.14, eva:14, crit:14, dr:19, hp:26, def:26, atkpct:26, critdmg:40, demondmg:0 },
+  Abyss:{ atkspd:0.16, eva:16, crit:16, dr:21, hp:29, def:29, atkpct:29, critdmg:45, demondmg:0 }
+};
+const EXTRA_POOL={
+  Chaos:{
+    Chest:[{atkpct:26},{dr:19},{mats:26}],
+    Gloves:[{atkpct:26},{dr:19},{mats:26}],
+    Boots:[{atkpct:26},{dr:19},{mats:26}],
+    Belt:[{hp:26},{bossdmg:40},{mats:26}],
+    Helm:[{hp:26},{bossdmg:40},{mats:26}],
+    Necklace:[{critdmg:40},{mats:26}],
+    Ring:[{critdmg:40},{mats:26}],
+    Weapon:[{critdmg:80},{hp:52},{mats:26}]
+  },
+  Abyss:{
+    Chest:[{atkpct:29},{dr:21},{mats:29}],
+    Gloves:[{atkpct:29},{dr:21},{mats:29}],
+    Boots:[{atkpct:29},{dr:21},{mats:29}],
+    Belt:[{hp:29},{bossdmg:45},{mats:29}],
+    Helm:[{hp:29},{bossdmg:45},{mats:29}],
+    Necklace:[{critdmg:45},{mats:29}],
+    Ring:[{critdmg:45},{mats:29}],
+    Weapon:[{critdmg:80},{hp:52},{mats:29}]
+  }
+};
+const BOSS_WEAPONS={
+  glacial:{
+    Sword:{name:"Glacial Sword",stats:["ATK% +14–26","Damage vs Monsters +25–40","Crit DMG +25–40"],skill:"Chance to cast Rampage"},
+    Bow:{name:"Glacial Bow",stats:["ATK% +14–26","Damage vs Monsters +25–40","Crit DMG +25–40"],skill:"Chance to cast Frozen Soul"},
+    Staff:{name:"Glacial Staff",stats:["ATK% +14–26","Damage vs Monsters +25–40","Crit DMG +25–40"],skill:"Chance to cast Frozen Soul"}
+  },
+  blaze:{
+    Hammer:{name:"Blaze Hammer",stats:["ATK% +14–26","Damage vs Monsters +25–40","Crit DMG +25–40"],skill:"Chance to cast Dragon’s Rage"},
+    Staff:{name:"Blaze Staff",stats:["ATK% +14–26","Damage vs Monsters +25–40","Crit DMG +25–40"],skill:"Chance to cast Primordial Power"}
+  },
+  darkness:{
+    Sword:{name:"Darkness Sword",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to cast Dark Fissure"},
+    Hammer:{name:"Darkness Hammer",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to cast Dark Lightning"},
+    Bow:{name:"Darkness Bow",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to cast Feather Shot"},
+    Staff:{name:"Darkness Staff",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to cast Soul Eater"}
+  },
+  venom:{
+    Blade:{name:"Venom Blade",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to x3 Damage"},
+    Scythe:{name:"Venom Scythe",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to cast Poison Aura"},
+    Bow:{name:"Venom Bow",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to cast Venom Rain"},
+    Staff:{name:"Venom Staff",stats:["ATK% +11–23","Damage vs Monsters +20–35"],skill:"Chance to cast Devour"}
+  }
+};
+
+// Utility
+function isWeaponForbidden(stat){ return (stat==='atkspd'||stat==='eva'||stat==='crit'); }
+
+// RUNES
+const RUNES={ atkspd:{atkspd:-0.05}, eva:{eva:+6}, crit:{crit:+6}, dr:{dr:+12} };
+function* runeCombos(){ const k=['atkspd','eva','crit','dr']; for(let m=0;m<(1<<k.length);m++){ const s=[]; for(let i=0;i<k.length;i++) if(m&(1<<i)) s.push(k[i]); yield s; } }
+function applyRunes(baseTargets, set){
+  const t={...baseTargets};
+  set.forEach(k=>{
+    const eff=RUNES[k];
+    Object.keys(eff).forEach(stat=>{
+      if(stat==='atkspd'){ t.atkspd=Math.max(0, t.atkspd + eff.atkspd); }
+      else { t[stat]=Math.max(0, t[stat]-eff[stat]); }
+    });
+  });
+  return t;
+}
+
+// Needs & waste
+function computeNeeds(gearType, targets){
+  const g=PER_LINE[gearType];
+  const needs={
+    atkspd: Math.max(0, Math.ceil((targets.atkspd+1e-9)/g.atkspd)),
+    eva:    Math.max(0, Math.ceil((targets.eva+1e-9)/g.eva)),
+    crit:   Math.max(0, Math.ceil((targets.crit+1e-9)/g.crit)),
+    dr:     Math.max(0, Math.ceil((targets.dr+1e-9)/g.dr))
+  };
+  const waste={
+    atkspd: Math.max(0, needs.atkspd*g.atkspd-targets.atkspd),
+    eva:    Math.max(0, needs.eva*g.eva-targets.eva),
+    crit:   Math.max(0, needs.crit*g.crit-targets.crit),
+    dr:     Math.max(0, needs.dr*g.dr-targets.dr)
+  };
+  return {needs,waste};
+}
+
+// Assign with per-piece uniqueness
+function assignLines(gearType, needs){
+  const baseLimit=(gearType==='Primal')?3:4;
+  const allowExtra=(gearType==='Chaos'||gearType==='Abyss');
+  const maxPerPiece=baseLimit+(allowExtra?1:0);
+  const assignment={}; const usedPerSlot={};
+  SLOTS.forEach(s=>{assignment[s]=[]; usedPerSlot[s]=new Set();});
+
+  function place(stat, count){
+    for(let i=0;i<count;i++){
+      let placed=false;
+      for(const s of SLOTS){
+        if(assignment[s].length>=maxPerPiece) continue;
+        if(s==='Weapon' && (stat==='atkspd'||stat==='eva'||stat==='crit')) continue;
+        if(usedPerSlot[s].has(stat)) continue; // uniqueness
+        assignment[s].push({[stat]:PER_LINE[gearType][stat]});
+        usedPerSlot[s].add(stat);
+        placed=true; break;
+      }
+      if(!placed) return false;
+    }
+    return true;
+  }
+  for(const st of ['atkspd','eva','crit','dr']){
+    if(needs[st]>0){ if(!place(st,needs[st])) return {ok:false,assignment}; }
+  }
+
+  // Fill bonuses (respect uniqueness too)
+  const bonusOrder=['hp','def','critdmg','atkpct','demondmg'];
+  for(const s of SLOTS){
+    while(assignment[s].length<maxPerPiece){
+      let added=false;
+      for(const b of bonusOrder){
+        const val=PER_LINE[gearType][b]||0; if(val<=0) continue;
+        if(usedPerSlot[s].has(b)) continue;
+        if(s==='Weapon' && (b==='atkspd'||b==='eva'||b==='crit')) continue;
+        assignment[s].push({[b]:val}); usedPerSlot[s].add(b); added=true; break;
+      }
+      if(!added) break;
+    }
+  }
+
+  // Add Chaos/Abyss extra pool one per slot if available and capacity permits
+  if(allowExtra){
+    for(const s of SLOTS){
+      const extras=(EXTRA_POOL[gearType]||{})[s]||[];
+      if(!extras.length) continue;
+      if(assignment[s].length>=maxPerPiece) continue;
+      // choose best-looking extra (prefer critdmg, then hp, then atkpct)
+      const order=['critdmg','hp','atkpct','dr','bossdmg','mats'];
+      let picked=null;
+      for(const key of order){
+        picked = extras.find(obj=>Object.keys(obj)[0]===key);
+        if(picked) break;
+      }
+      if(!picked) picked=extras[0];
+      // ensure uniqueness too
+      const key=Object.keys(picked)[0];
+      if(!usedPerSlot[s].has(key)){
+        assignment[s].push(picked); usedPerSlot[s].add(key);
+      }
+    }
+  }
+
+  return {ok:true, assignment};
+}
+
+function scoreBuild(targetsRemaining, waste){
+  const rem=targetsRemaining;
+  const hard = 2000*rem.atkspd + 25*rem.eva + 25*rem.crit + 50*rem.dr;
+  const wsum = waste.atkspd + waste.eva + waste.crit + 0.5*waste.dr;
+  return hard + wsum;
+}
+
+function evalBuild(gearType, baseTargets, runeSet){
+  const targets=applyRunes(baseTargets, runeSet);
+  const {needs,waste}=computeNeeds(gearType, targets);
+  const assigned=assignLines(gearType, needs);
+  if(!assigned.ok) return {ok:false};
+
+  const score=scoreBuild(targets, waste);
+  return {ok:true, runeSet, needs, waste, targetsAfterRunes:targets, score, assignment:assigned.assignment};
+}
+
+function bestAndAlternates(gearType, focus){
+  const tank = (focus==='Tank');
+  let atkspdTarget = (gearType==='Primal' && tank) ? 0.45 : 0.25;
+  const baseTargets={atkspd:atkspdTarget, eva:40, crit:50, dr:tank?100:0};
+
+  const builds=[];
+  for(const set of runeCombos()){
+    const b=evalBuild(gearType, baseTargets, set);
+    if(b.ok) builds.push(b);
+  }
+  builds.sort((a,b)=>a.score-b.score);
+  const best=builds[0]||null;
+  const base=evalBuild(gearType, baseTargets, []);
+
+  const alts=[];
+  for(const b of builds.slice(1)){
+    if(b.runeSet.length===0) continue;
+    if(base && b.score<base.score) alts.push(b);
+    if(alts.length>=3) break;
+  }
+  return {best, alts, baseTargets};
+}
+
+function fmtNeedsLine(stat, n, runeSet, waste){
+  const usedRune = runeSet.includes(stat);
+  const runeText = usedRune ? ` + Rune` : ``;
+  const w = waste[stat]||0;
+  const wasteText = w>1e-6 ? ` (waste ${stat==='atkspd'?(w*100).toFixed(0)+'%':w.toFixed(1)+'%'})` : '';
+  const label = LABEL[stat];
+  return `▸ ${n} line${n!==1?'s':''} ${label}${runeText}${wasteText}`;
+}
+
+function renderChosen(assignment){
+  const res=[];
+  for(const slot of SLOTS){
+    const arr=assignment[slot]||[];
+    const pills = arr.map(o=>{
+      const k=Object.keys(o)[0]; const v=o[k];
+      const percent = (k==='atkspd') ? `${(v*100).toFixed(0)}%` : `${v}%`;
+      const cls = k==='atkspd'||k==='crit' ? 'badge-green'
+                : k==='eva'||k==='dr' ? 'badge-blue'
+                : k==='critdmg' ? 'badge-red' : 'badge-gray';
+      return `<span class="tag ${cls}">${LABEL[k]||k} +${percent}</span>`;
+    }).join('');
+    res.push(`<div style="margin:6px 0"><span style="display:inline-block;width:110px;color:#d1c4a5">${slot}</span> <span class="tags">${pills||'<span class="muted">—</span>'}</span></div>`);
+  }
+  document.getElementById('result').innerHTML = res.join('');
+}
+
+function renderSummary(title, build){
+  if(!build) return `<div class="muted">—</div>`;
+  const n=build.needs, w=build.waste;
+  const lines=[
+    fmtNeedsLine('atkspd', n.atkspd, build.runeSet, w),
+    fmtNeedsLine('crit', n.crit, build.runeSet, w),
+    fmtNeedsLine('eva', n.eva, build.runeSet, w),
+    fmtNeedsLine('dr', n.dr, build.runeSet, w)
+  ];
+  const runeBadges = build.runeSet.map(r=>`<span class="tag">Rune: ${r.toUpperCase()}</span>`).join('') || '<span class="muted">No runes</span>';
+  return `<div><div style="font-weight:700">${title}</div><div class="tags" style="margin:6px 0">${runeBadges}</div><div>${lines.join('<br>')}</div></div>`;
+}
+
+// Optimize & render
+function optimize(){
+  const gearType = document.querySelector('input[name="gear"]:checked').value;
+  const focusEl = document.querySelector('input[name="focus"]:checked');
+  const focus = focusEl ? focusEl.value : 'None';
+
+  const fam=document.getElementById('weaponCat').value;
+  const wtype=document.getElementById('weaponType').value;
+  if(fam!=='normal'){
+    const w=(BOSS_WEAPONS[fam]||{})[wtype];
+    if(w) document.getElementById('status').innerHTML = `Boss weapon selected: ${w.name} • ${w.skill}`;
+  } else {
+    document.getElementById('status').innerHTML = `Normal weapon (${wtype||'—'})`;
+  }
+
+  const {best, alts, baseTargets}=bestAndAlternates(gearType, focus);
+  if(!best){
+    document.getElementById('result').innerHTML='<span class="muted">No feasible build.</span>';
+    document.getElementById('summary').innerHTML='<span class="muted">—</span>';
+    return;
+  }
+  renderChosen(best.assignment);
+
+  // Status compact
+  const r=best.targetsAfterRunes;
+  const status=[
+    `ATK SPD <span class="${r.atkspd<=1e-6?'ok':(r.atkspd<0.05?'meh':'no')}">${r.atkspd<=1e-6?'OK':('need '+r.atkspd.toFixed(2))}</span>`,
+    `Evasion <span class="${r.eva<=1e-6?'ok':(r.eva<5?'meh':'no')}">${r.eva<=1e-6?'OK':('need '+r.eva.toFixed(1)+'%')}</span>`,
+    `Crit <span class="${r.crit<=1e-6?'ok':(r.crit<5?'meh':'no')}">${r.crit<=1e-6?'OK':('need '+r.crit.toFixed(1)+'%')}</span>`,
+    `DR <span class="${r.dr<=1e-6?'ok':(r.dr<12?'meh':'no')}">${r.dr<=1e-6?'OK':('need '+r.dr.toFixed(1)+'%')}</span>`
+  ].join(' • ');
+  document.getElementById('status').innerHTML=status;
+
+  let html=renderSummary('Optimal Build', best);
+  if(alts && alts.length){
+    html+=`<hr class="sep"><div><strong>Alternates (runes that help reach caps)</strong></div>`;
+    alts.forEach((b,i)=> html+=`<div style="margin-top:8px">${renderSummary('Alternate '+(i+1), b)}</div>`);
+  }
+  document.getElementById('summary').innerHTML=html;
+
+  window.__plan={best, alts, gearType, focus, fam, wtype, baseTargets};
+}
+
+function renderCard(){
+  const P=window.__plan; const C=document.getElementById('card'); const ctx=C.getContext('2d');
+  ctx.fillStyle='#1b130d'; ctx.fillRect(0,0,C.width,C.height);
+  ctx.strokeStyle='#d6c7a6'; ctx.lineWidth=4; ctx.strokeRect(20,20,C.width-40,C.height-40);
+  ctx.fillStyle='#e8d9bb'; ctx.font='26px ui-sans-serif'; ctx.fillText('Rediscover Build Generator',40,60);
+  if(!P){ ctx.font='14px ui-sans-serif'; ctx.fillText('Run Optimize first',40,84); return; }
+  ctx.font='14px ui-sans-serif'; ctx.fillStyle='#b7a88c';
+  ctx.fillText(`Gear: ${P.gearType} • Focus: ${P.focus}`,40,84);
+
+  // Chosen stats
+  let y=120; ctx.fillStyle='#c9bda1'; ctx.font='18px ui-sans-serif'; ctx.fillText('Chosen Stats',40,y); y+=26;
+  ctx.font='14px ui-sans-serif'; ctx.fillStyle='#e8d9bb';
+  for(const slot of SLOTS){
+    const arr=P.best.assignment[slot]||[];
+    const txt = arr.map(o=>{const k=Object.keys(o)[0]; const v=o[k]; const pct=(k==='atkspd')?`${(v*100).toFixed(0)}%`:`${v}%`; return `${LABEL[k]||k} +${pct}`;}).join(' • ');
+    ctx.fillText(`${slot}: ${txt||'—'}`,40,y); y+=22;
+  }
+
+  // Requirements
+  const b=P.best, n=b.needs, w=b.waste;
+  let x=720; y=120;
+  ctx.fillStyle='#c9bda1'; ctx.font='18px ui-sans-serif'; ctx.fillText('Requirements',x,y); y+=26;
+  ctx.fillStyle='#e8d9bb'; ctx.font='14px ui-sans-serif';
+  const lines=[
+    `ATK SPD: ${n.atkspd} line(s)${b.runeSet.includes('atkspd')?' + Rune':''}${w.atkspd>1e-6?' (waste '+(w.atkspd*100).toFixed(0)+'%)':''}`,
+    `Crit: ${n.crit} line(s)${b.runeSet.includes('crit')?' + Rune':''}${w.crit>1e-6?' (waste '+w.crit.toFixed(1)+'%)':''}`,
+    `Evasion: ${n.eva} line(s)${b.runeSet.includes('eva')?' + Rune':''}${w.eva>1e-6?' (waste '+w.eva.toFixed(1)+'%)':''}`,
+    `DR: ${n.dr} line(s)${b.runeSet.includes('dr')?' + Rune':''}${w.dr>1e-6?' (waste '+w.dr.toFixed(1)+'%)':''}`
+  ];
+  lines.forEach(L=>{ ctx.fillText(L,x,y); y+=22; });
+
+  ctx.fillStyle='#b7a88c'; ctx.fillText('Guild — Rediscover Alliance • Rediscover Build Generator by SAGE',40,C.height-40);
+}
+
+document.getElementById('run').onclick=optimize;
+document.getElementById('render').onclick=renderCard;
+document.getElementById('save').onclick=()=>{
+  const a=document.createElement('a'); a.download='rediscover_build.png';
+  a.href=document.getElementById('card').toDataURL('image/png'); a.click();
+};
+
+// weapon type options
+const weaponCat=document.getElementById('weaponCat');
+const weaponType=document.getElementById('weaponType');
+function refreshWeaponTypes(){
+  weaponType.innerHTML='';
+  if(weaponCat.value==='normal'){
+    ['Primal','Original','Chaos','Abyss'].forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; weaponType.appendChild(o); });
+  }else{
+    Object.keys(BOSS_WEAPONS[weaponCat.value]).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; weaponType.appendChild(o); });
+  }
+}
+weaponCat.onchange=refreshWeaponTypes; refreshWeaponTypes();
+</script>
+</body>
+</html>
